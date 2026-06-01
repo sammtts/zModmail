@@ -1,0 +1,31 @@
+zModmail es un bot de Discord diseñado para manejar los tickets de soporte en el servidor de Tute.
+
+--- ¿CÓMO FUNCIONARÁ?
+
+Los usuarios podrán crear un ticket al seleccionar un equipo de soporte a través de un menú. El bot le pedirá confirmar antes de abrir el ticket. Antes de abrir el ticket, el bot confirmará si puede enviar mensajes directos al usuario; de lo contrario, fallará.
+
+Una vez el bot haya confirmado que puede enviar mensajes directos, enviará un mensaje de confirmación al MD del usuario y enviará una alerta a un canal de moderadores donde podrán reclamar al apretar un botón. Se creará un hilo donde los moderadores serán notificados y tendrán un panel con opciones, recibirán los mensajes del usuario y podrán enviar sus propios mensajes.
+
+--- COMANDOS
+
+- Moderadores
+
+/claim - En caso de que el botón para reclamar un ticket no esté funcionando, o para los demás equipos reclamar un ticket que ha sido movido, reclamará el ticket en el que el moderador esté en ese momento.
+
+/close - En caso de que la opción del menú no esté funcionando o el bot no hubiese cerrado el ticket correctamente, este comando le servirá al moderador crear un transcript automático y cerrar el ticket (eliminar el hilo).
+
+/move - En caso de que la opción del menú no esté funcionando, un moderador podrá ejecutar este comando dentro de un ticket para crear el panel para mover el ticket.
+
+- Administradores
+
+/blacklist add [usuario]: Al ejecutar este comando, el usuario no podrá crear más tickets.
+
+/blacklist remove [usuario]: Al ejecutar este comando, el usuario podrá volver a abrir tickets.
+
+/blacklist list: Mostrará una lista de los usuarios bloqueados de abrir tickets.
+
+/setup: Mostrará un menú con varias opciones para la configuración del bot.
+
+1. Permisos: podrá manejar la configuración de permisos del bot; agregar o eliminar roles de una categoría (por ejemplo, administración o moderación).
+
+2. Transcripts: podrá manejar la configuración de los transcripts: agregar o eliminar el canal donde se enviarán los transcripts.
