@@ -40,9 +40,9 @@ export default async function loadEvents(client) {
     }
 
     if (event.once) {
-      client.once(event.name, (...args) => event.execute(client, ...args));
+      client.once(event.name, (...args) => event.execute(...args));
     } else {
-      client.on(event.name, (...args) => event.execute(client, ...args));
+      client.on(event.name, (...args) => event.execute(...args));
     }
 
     logger.info(`El evento ${event.name} ha sido cargado.`);
