@@ -10,4 +10,9 @@ const client = new Client({
 
 await loadEvents(client);
 
+if (!process.env.DISCORD_TOKEN) {
+  console.error('El token de Discord no está definido en las variables de entorno.');
+  process.exit(1);
+}
+
 client.login(process.env.DISCORD_TOKEN);
