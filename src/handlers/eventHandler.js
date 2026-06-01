@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+
 import logger from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -8,6 +9,12 @@ const __dirname = path.dirname(__filename);
 
 export default async function loadEvents(client) {
   const eventsPath = path.join(__dirname, '..', 'events');
+
+  if (!fs.existsSync(eventsPath)) {
+    logger.warn(`La carpeta de eventos no existe en: ${eventsPath}`);
+    return;
+  }
+
   const eventFiles = getFiles(eventsPath);
 
   const events = await Promise.all(
@@ -27,11 +34,9 @@ export default async function loadEvents(client) {
     }),
   );
 
-  for (const data of events) {
-    if (!data) {
-      continue;
-    }
+  let loadedCount = 0;
 
+  for (const data of events) {
     const { event } = data;
 
     if (!event.name || typeof event.execute !== 'function') {
@@ -45,8 +50,10 @@ export default async function loadEvents(client) {
       client.on(event.name, (...args) => event.execute(...args));
     }
 
-    logger.info(`El evento ${event.name} ha sido cargado.`);
+    loadedCount++;
   }
+
+  logger.info(`Se han cargado ${loadedCount} eventos correctamente.`);
 }
 
 function getFiles(dir) {
