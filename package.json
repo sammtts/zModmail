@@ -32,8 +32,15 @@
     "prettier": "^3.8.3"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "discord.js": "^14.26.4",
     "dotenv": "^17.4.2",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "prisma": "^6.19.3"
+  },
+  "allowScripts": {
+    "prisma@6.19.3": true,
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true
   }
 }

@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
+}
+
+model GuildConfig {
+  id               String @id
+  transcriptChannel String
+  alertChannel      String
+
+  teams Team[]
+}
+
+model Team {
+  id      String @id @default(uuid())
+  name    String
+  roleId  String
+
+  guildId String
+  guild   GuildConfig @relation(fields: [guildId], references: [id])
+
+  tickets Ticket[]
+
+  @@index([guildId])
+}
+
+model Ticket {
+  id        String  @id @default(uuid())
+  guildId   String
+
+  userId    String
+  threadId  String
+
+  status    TicketStatus @default(OPEN)
+
+  claimedBy String
+
+  teamId    String
+  team      Team    @relation(fields: [teamId], references: [id])
+
+  closedBy  String
+  closedAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Blacklist {
+  userId    String @id
+  reason    String?
+  addedBy   String
+  createdAt DateTime @default(now())
+}
