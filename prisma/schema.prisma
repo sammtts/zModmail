@@ -13,28 +13,35 @@ enum TicketStatus {
 }
 
 model GuildConfig {
-  id               String @id
+  id                String @id
   transcriptChannel String
   alertChannel      String
+
+  panelTitle        String @default("Sistema de Soporte del Servidor")
+  panelDescription  String
+  panelColor        String @default("Blurple")
+  panelThumbnail    String?
 
   teams Team[]
 }
 
 model Team {
-  id      String @id @default(uuid())
-  name    String
-  roleId  String
+  id             String      @id @default(uuid())
+  name           String
+  roleId         String
 
-  guildId String
-  guild   GuildConfig @relation(fields: [guildId], references: [id])
+  guildId        String
+  guild          GuildConfig @relation(fields: [guildId], references: [id])
 
-  tickets Ticket[]
+  isPanelVisible Boolean     @default(true)
+
+  tickets        Ticket[]
 
   @@index([guildId])
 }
 
 model Ticket {
-  id        String  @id @default(uuid())
+  id        String       @id @default(uuid())
   guildId   String
 
   userId    String
@@ -45,13 +52,13 @@ model Ticket {
   claimedBy String
 
   teamId    String
-  team      Team    @relation(fields: [teamId], references: [id])
+  team      Team         @relation(fields: [teamId], references: [id])
 
   closedBy  String
   closedAt  DateTime
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@index([guildId])
   @@index([userId])
@@ -59,7 +66,7 @@ model Ticket {
 }
 
 model Blacklist {
-  userId    String @id
+  userId    String   @id
   reason    String?
   addedBy   String
   createdAt DateTime @default(now())
