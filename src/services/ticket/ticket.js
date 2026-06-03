@@ -72,7 +72,7 @@ export async function createTicket(interaction, client) {
 
   if (isBlacklisted) {
     return interaction.editReply({
-      content: "Has sido bloqueado y no puedes crear tickets.",
+      content: "Estás en la lista negra por lo que no puedes crear tickets.",
       flags: ["Ephemeral"],
     });
   }
@@ -114,7 +114,7 @@ export async function createTicket(interaction, client) {
   const userEmbed = new EmbedBuilder()
     .setTitle("Ticket Creado")
     .setDescription(
-      "Serás contactado por un moderador pronto, mientras tanto, escribe la razón de tu ticket para agilizar el proceso de atención.",
+      "Tienes **10 minutos** a partir de este mensaje para proporcionar la razón de tu ticket; de lo contrario, será cerrado automáticamente.\n\nUna vez envíes tu mensaje, un miembro del equipo se pondrá en contacto contigo por este medio.",
     )
     .setTimestamp()
     .setColor(Colors.Green);
@@ -138,7 +138,7 @@ export async function createTicket(interaction, client) {
     );
     return interaction.editReply({
       content:
-        "Hubo un error al crear tu ticket en la base de datos. Por favor, contacta con un administrador.",
+        "Ocurrió un error al guardar tu ticket en la base de datos. Por favor, inténtalo de nuevo más tarde.",
       flags: ["Ephemeral"],
     });
   }
@@ -174,9 +174,9 @@ export async function createTicket(interaction, client) {
       .setCustomId("staff_menu")
       .setPlaceholder("Menú del Staff")
       .addOptions([
-        { label: "Cerrar ticket", value: "close", description: "Cerrar este ticket" },
-        { label: "Iniciar inactividad", value: "inactivity", description: "Marcar ticket como inactivo" },
-        { label: "Mover ticket de categoría", value: "move", description: "Mover este ticket a otro equipo" },
+        { label: "Cerrar ticket", value: "close" },
+        { label: "Iniciar inactividad", value: "inactivity" },
+        { label: "Mover ticket de categoría", value: "move" },
       ]);
 
     const claimRow = new ActionRowBuilder().addComponents(
@@ -207,7 +207,6 @@ export async function createTicket(interaction, client) {
       )
       .setThumbnail(user.displayAvatarURL({ extension: "png", size: 512 }))
       .setColor(Colors.Blurple)
-      .setFooter({ text: "Menú del Staff" });
 
     const staffButtons = new ActionRowBuilder().addComponents(staffMenu);
 
@@ -217,32 +216,13 @@ export async function createTicket(interaction, client) {
       embeds: [userInfoEmbed],
       components: [staffButtons],
     });
-
-    try {
-      await infoMessage.pin();
-    } catch (error) {
-      logger.error(
-        `Ocurrió un error al fijar el mensaje de información del usuario: ${error.message}`,
-      );
-    }
-
-    await startNoReplyTimer(ticket, thread, client);
   } catch (error) {
     logger.error(
-      `Ocurrió un error al crear el hilo del ticket o notificar al staff: ${error}`,
+      `Ocurrió un error al crear el hilo del ticket o notificar al equipo: ${error.message}`,
     );
-
-    try {
-      await db.ticket.delete({ where: { id: ticket.id } });
-    } catch (dbErr) {
-      logger.error(
-        `Ocurrió un error al limpiar ticket huérfano de la base de datos: ${dbErr}`,
-      );
-    }
-
     return interaction.editReply({
       content:
-        "Hubo un error al configurar el canal de soporte. Por favor, avisa a un administrador.",
+        "Ocurrió un error al crear el ticket o notificar al equipo. Por favor, inténtalo de nuevo más tarde.",
       flags: ["Ephemeral"],
     });
   }
@@ -327,7 +307,7 @@ export async function claimTicket(interaction, client) {
 
     const claimUserEmbed = new EmbedBuilder()
       .setTitle("Ticket Atendido")
-      .setDescription("Un miembro del personal de soporte ha comenzado a atender tu ticket.")
+      .setDescription("Un miembro del equipo ha comenzado a atender tu ticket.")
       .setColor(Colors.Green)
       .setTimestamp();
     await ticketUser.send({ embeds: [claimUserEmbed] });
@@ -600,9 +580,9 @@ export async function handleInactivityTicketButton(interaction, client) {
     try {
       const user = await client.users.fetch(ticket.userId);
       const inactivityUserEmbed = new EmbedBuilder()
-        .setTitle("Periodo de Inactividad")
+        .setTitle("Inactividad del usuario")
         .setDescription(
-          "El equipo de soporte ha iniciado un periodo de inactividad en tu ticket. Esto se debe a que no hemos recibido una respuesta. Si no recibimos una respuesta en los próximos 15 minutos, cerraremos el ticket automáticamente.",
+          "Un miembro de nuestro equipo ha marcado este ticket como **inactivo**. Tienes **15 minutos** a partir de este mensaje para cancelar este proceso al enviar un mensaje; de lo contrario, el ticket será cerrado automáticamente.",
         )
         .setColor(Colors.Blurple)
         .setTimestamp();
@@ -627,7 +607,7 @@ export async function handleInactivityTicketButton(interaction, client) {
     if (!interaction.replied) {
       return interaction.reply({
         content:
-          "No se pudo iniciar el periodo de inactividad. Por favor, intenta de nuevo.",
+          "No se pudo iniciar el periodo de inactividad. Por favor, inténtalo de nuevo más tarde.",
         flags: ["Ephemeral"],
       });
     }
@@ -654,7 +634,7 @@ export async function handleMoveTicketButton(interaction) {
   if (!teams || teams.length === 0) {
     return interaction.reply({
       content:
-        "No hay equipos configurados para mover el ticket. Por favor, habla con un administrador.",
+        "No hay equipos configurados para mover el ticket. Por favor, contacta con un administrador.",
       flags: ["Ephemeral"],
     });
   }

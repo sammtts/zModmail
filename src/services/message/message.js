@@ -130,7 +130,7 @@ export async function confirmModMessage(interaction, client) {
 
     const embed = new EmbedBuilder()
       .setAuthor({
-        name: `Soporte - ${guild ? guild.name : "Servidor"}`,
+        name: `Soporte — ${guild ? guild.name : "Servidor"}`,
         iconURL: guild ? guild.iconURL() : undefined,
       })
       .setDescription(pendingMsg.content || "*Sin contenido*")
