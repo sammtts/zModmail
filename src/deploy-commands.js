@@ -57,10 +57,6 @@ const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
       process.exit(1);
     }
 
-    logger.info(
-      `Empezando a sincronizar ${commands.length} comandos de aplicación (/).`,
-    );
-
     const data = await rest.put(
       process.env.GUILD_ID
         ? Routes.applicationGuildCommands(

@@ -1,17 +1,17 @@
 import logger from "./logger.js";
 
 export async function handleServiceError(error, interaction, action) {
-  logger.error(`Error en ${action}: ${error.message}`);
+  logger.error(`Ocurrió un error en ${action}: ${error.message}`);
 
   try {
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply({
-        content: "Ocurrió un error. Por favor intenta más tarde.",
+        content: "Ocurrió un error. Por favor inténtalo más tarde.",
         flags: ["Ephemeral"],
       });
     } else {
       await interaction.reply({
-        content: "Ocurrió un error. Por favor intenta más tarde.",
+        content: "Ocurrió un error. Por favor inténtalo más tarde.",
         flags: ["Ephemeral"],
       });
     }

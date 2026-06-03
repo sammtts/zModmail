@@ -15,5 +15,3 @@ if (missingVars.length > 0) {
   );
   process.exit(1);
 }
-
-logger.info("Variables de entorno validadas con éxito.");

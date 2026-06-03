@@ -35,12 +35,12 @@ import {
   startNoReplyTimer,
 } from "./thread.js";
 
-async function generateTranscript(channel) {
+async function generateTranscript(channel, userId) {
   try {
     return await discordTranscripts.createTranscript(channel, {
       limit: -1,
       returnType: "attachment",
-      filename: `transcript-${channel.name}.html`,
+      filename: `transcript-${userId}.html`,
       saveImages: true,
       poweredBy: false,
     });
@@ -57,7 +57,7 @@ async function generateTranscript(channel) {
       .join("\n");
 
     return new AttachmentBuilder(Buffer.from(text, "utf-8"), {
-      name: `transcript-${channel.name}.txt`,
+      name: `transcript-${userId}.txt`,
     });
   }
 }
@@ -286,7 +286,7 @@ export async function claimTicket(interaction, client) {
       );
     }
   } catch (err) {
-    logger.error(`Error al reclamar ticket en BD: ${err}`);
+    logger.error(`Ocurrió un error al reclamar ticket en BD: ${err}`);
     return interaction.reply({ content: "No se pudo reclamar el ticket.", flags: ["Ephemeral"] });
   }
 
@@ -380,12 +380,12 @@ export async function moveTicket(interaction, _client) {
 
         if (shouldRemove) {
           await interaction.channel.members.remove(memberId).catch((err) => {
-            logger.error(`Error al remover miembro ${memberId} del hilo: ${err.message}`);
+            logger.error(`Ocurrió un error al remover miembro ${memberId} del hilo: ${err.message}`);
           });
         }
       }
     } catch (error) {
-      logger.error(`Error al obtener miembros del hilo para remover staff anterior: ${error.message}`);
+      logger.error(`Ocurrió un error al obtener miembros del hilo para remover staff anterior: ${error.message}`);
     }
   }
 
@@ -439,7 +439,7 @@ export async function closeTicketThread({
   }
 
   const config = await getGuildConfig(thread.guild.id);
-  const attachment = await generateTranscript(thread);
+  const attachment = await generateTranscript(thread, ticket.userId);
 
   const closeEmbed = new EmbedBuilder()
     .setTitle("Ticket Cerrado")
