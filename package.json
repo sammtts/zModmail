@@ -17,6 +17,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node ./src/index.js",
+    "deploy": "node ./src/deploy-commands.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
@@ -28,11 +29,12 @@
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "globals": "^17.6.0",
-    "pino-prettier": "^3.0.1-dev",
+    "pino-pretty": "^13.0.0",
     "prettier": "^3.8.3"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "discord-html-transcripts": "3.2.0",
     "discord.js": "^14.26.4",
     "dotenv": "^17.4.2",
     "pino": "^10.3.1",

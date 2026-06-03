@@ -14,11 +14,11 @@ enum TicketStatus {
 
 model GuildConfig {
   id                String @id
-  transcriptChannel String
-  alertChannel      String
+  transcriptChannel String?
+  alertChannel      String?
 
   panelTitle        String @default("Sistema de Soporte del Servidor")
-  panelDescription  String
+  panelDescription  String @default("Selecciona un equipo de soporte a continuación para abrir un ticket. Nos comunicaremos contigo por mensaje directo.")
   panelColor        String @default("Blurple")
   panelThumbnail    String?
 
@@ -45,17 +45,17 @@ model Ticket {
   guildId   String
 
   userId    String
-  threadId  String
+  threadId  String?
 
   status    TicketStatus @default(OPEN)
 
-  claimedBy String
+  claimedBy String?
 
   teamId    String
   team      Team         @relation(fields: [teamId], references: [id])
 
-  closedBy  String
-  closedAt  DateTime
+  closedBy  String?
+  closedAt  DateTime?
 
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt

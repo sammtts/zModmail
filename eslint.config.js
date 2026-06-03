@@ -1,14 +1,14 @@
-import js from '@eslint/js';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
-import globals from 'globals';
+import js from "@eslint/js";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
 
   {
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      ecmaVersion: "latest",
+      sourceType: "module",
 
       globals: {
         ...globals.node,
@@ -16,30 +16,30 @@ export default [
     },
 
     plugins: {
-      'simple-import-sort': simpleImportSort,
+      "simple-import-sort": simpleImportSort,
     },
 
     rules: {
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
 
-      'no-var': 'error',
-      'prefer-const': 'error',
+      "no-var": "error",
+      "prefer-const": "error",
 
-      'no-unused-vars': [
-        'error',
+      "no-unused-vars": [
+        "error",
         {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
 
-      eqeqeq: ['error', 'always'],
-      curly: ['error', 'all'],
-      'dot-notation': 'error',
-      'object-shorthand': ['error', 'always'],
-      'prefer-template': 'error',
-      'no-await-in-loop': 'error',
+      eqeqeq: ["error", "always"],
+      curly: ["error", "all"],
+      "dot-notation": "error",
+      "object-shorthand": ["error", "always"],
+      "prefer-template": "error",
+      "no-await-in-loop": "error",
     },
   },
 ];

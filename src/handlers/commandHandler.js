@@ -1,8 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-import logger from '../utils/logger.js';
+import logger from "../utils/logger.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,13 +11,13 @@ const getFiles = (dir) =>
     const fullPath = path.join(dir, entry.name);
     return entry.isDirectory()
       ? getFiles(fullPath)
-      : entry.isFile() && entry.name.endsWith('.js')
+      : entry.isFile() && entry.name.endsWith(".js")
         ? fullPath
         : [];
   });
 
 export default async function loadCommands(client) {
-  const commandsPath = path.join(__dirname, '..', 'commands');
+  const commandsPath = path.join(__dirname, "..", "commands");
 
   if (!fs.existsSync(commandsPath)) {
     return logger.warn(`La carpeta de comandos no existe en: ${commandsPath}`);
@@ -28,10 +28,11 @@ export default async function loadCommands(client) {
 
   for (const file of getFiles(commandsPath)) {
     try {
+      // eslint-disable-next-line no-await-in-loop
       const imported = await import(pathToFileURL(file).href);
       const command = imported.default ?? imported;
 
-      if (!command?.data?.name || typeof command.execute !== 'function') {
+      if (!command?.data?.name || typeof command.execute !== "function") {
         logger.warn(`El comando ${file} no es válido.`);
         continue;
       }
@@ -39,7 +40,7 @@ export default async function loadCommands(client) {
       client.commands.set(command.data.name, command);
       loadedCount++;
     } catch (error) {
-      logger.error(`Ocurrió un error al cargar el comando ${file}`, error);
+      logger.error(`Ocurrió un error al cargar el comando ${file}: ${error}`);
     }
   }
 

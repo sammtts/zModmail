@@ -1,20 +1,22 @@
-import 'dotenv/config';
+import "dotenv/config";
+import "./utils/config.js";
 
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from "discord.js";
 
-import loadCommands from './handlers/commandHandler.js';
-import loadEvents from './handlers/eventHandler.js';
+import loadCommands from "./handlers/commandHandler.js";
+import loadEvents from "./handlers/eventHandler.js";
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages,
+  ],
+  partials: [Partials.Channel, Partials.Message],
 });
 
 await loadEvents(client);
 await loadCommands(client);
-
-if (!process.env.DISCORD_TOKEN) {
-  console.error('El token de Discord no está definido en las variables de entorno.');
-  process.exit(1);
-}
 
 client.login(process.env.DISCORD_TOKEN);

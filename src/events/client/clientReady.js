@@ -1,10 +1,13 @@
-import logger from '../../utils/logger.js';
+import { initializeTicketCache } from "../../cache/ticketCache.js";
+import { db } from "../../database/db.js";
+import logger from "../../utils/logger.js";
 
 export default {
-  name: 'clientReady',
+  name: "clientReady",
   once: true,
 
   async execute(client) {
+    await initializeTicketCache(db);
     logger.info(`Conectado como ${client.user.tag}`);
   },
 };
