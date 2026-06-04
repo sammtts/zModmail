@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { Colors, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 import {
   createTeam,
@@ -89,9 +89,16 @@ export async function execute(interaction) {
     const role = interaction.options.getRole("role");
 
     await createTeam(guildId, name, role.id);
+    const embed = new EmbedBuilder()
+      .setColor(Colors.Blurple)
+      .setAuthor({
+        name: interaction.user.tag,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setDescription(`El equipo **${name}** se ha creado correctamente.`);
+
     await interaction.reply({
-      content: `El equipo **${name}** se ha creado correctamente.`,
-      flags: ["Ephemeral"],
+      embeds: [embed],
     });
   } else if (subCmd === "remove") {
     const teamId = interaction.options.getString("team");
@@ -106,9 +113,16 @@ export async function execute(interaction) {
 
     try {
       await deleteTeam(teamId);
+      const embed = new EmbedBuilder()
+        .setColor(Colors.Blurple)
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .setDescription(`El equipo **${team.name}** ha sido eliminado.`);
+
       await interaction.reply({
-        content: `El equipo **${team.name}** ha sido eliminado.`,
-        flags: ["Ephemeral"],
+        embeds: [embed],
       });
     } catch (error) {
       logger.error(
@@ -153,9 +167,16 @@ export async function execute(interaction) {
 
     await updateTeam(teamId, dataToUpdate);
 
+    const embed = new EmbedBuilder()
+      .setColor(Colors.Blurple)
+      .setAuthor({
+        name: interaction.user.tag,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setDescription(`El equipo **${team.name}** ha sido actualizado correctamente.`);
+
     await interaction.reply({
-      content: `El equipo **${team.name}** ha sido actualizado correctamente.`,
-      flags: ["Ephemeral"],
+      embeds: [embed],
     });
   }
 }

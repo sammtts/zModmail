@@ -45,7 +45,7 @@ async function generateTranscript(channel, userId) {
       poweredBy: false,
     });
   } catch (error) {
-    logger.warn(`No se pudo generar la transcripción HTML: ${error.message}`);
+    logger.warn(`Ocurrió un error al generar la transcripción: ${error.message}`);
 
     const messages = await channel.messages.fetch({ limit: 100 });
     const text = messages
@@ -356,7 +356,6 @@ export async function moveTicket(interaction, _client) {
   await dbMoveTicket(ticket.id, team.id);
 
   await interaction.update({
-    content: `Ticket movido a **${team.name}**.`,
     components: [],
   });
 
@@ -391,7 +390,7 @@ export async function moveTicket(interaction, _client) {
 
   const moveEmbed = new EmbedBuilder()
     .setTitle("Ticket Transferido")
-    .setDescription(`Tu ticket ha sido transferido al departamento de **${team.name}**.`)
+    .setDescription(`Un miembro de nuestro equipo ha movido tu ticket a la categoría de **${team.name}**.`)
     .setColor(Colors.Blurple)
     .setTimestamp();
 
@@ -430,8 +429,9 @@ export async function closeTicketThread({
   notifyUserMessage,
   closeReason,
 }) {
+  let closedTicket = ticket;
   try {
-    await dbCloseTicket(ticket.id, closedBy);
+    closedTicket = await dbCloseTicket(ticket.id, closedBy);
   } catch (error) {
     logger.error(
       `Ocurrió un error al cerrar el ticket en la base de datos: ${error.message}`,
@@ -440,13 +440,23 @@ export async function closeTicketThread({
 
   const config = await getGuildConfig(thread.guild.id);
   const attachment = await generateTranscript(thread, ticket.userId);
+  const attendedBy = closedTicket.claimedBy
+    ? `<@${closedTicket.claimedBy}>`
+    : "Nadie";
+  const closedAtTimestamp = Math.floor(
+    (closedTicket.closedAt ?? new Date()).getTime() / 1000,
+  );
 
   const closeEmbed = new EmbedBuilder()
-    .setTitle("Ticket Cerrado")
+    .setAuthor({
+      name: thread.name ?? `Ticket ${ticket.id}`,
+      iconURL: thread.guild.iconURL({ extension: "png", size: 512 }),
+    })
     .setDescription(
-      `El ticket de <@${ticket.userId}> fue cerrado por ${actionBy}`,
+      `> **Usuario:** <@${ticket.userId}>\n> **Atendido por:** ${attendedBy}\n> **Cerrado por:** ${actionBy}\n> **Fecha:** <t:${closedAtTimestamp}:F>`,
     )
-    .setColor(Colors.Red);
+    .setColor(Colors.Blurple)
+    .setTimestamp(closedTicket.closedAt ?? new Date());
 
   if (config?.transcriptChannel) {
     try {
@@ -522,19 +532,13 @@ export async function handleCloseTicketButton(interaction) {
     clearInactivityTimer(ticket.id);
     clearNoReplyTimer(ticket.id);
 
-    await interaction.reply({
-      content:
-        "El ticket está siendo cerrado y se está generando una transcripción.",
-      flags: ["Ephemeral"],
-    });
-
     await closeTicketThread({
       ticket,
       thread: interaction.channel,
       client: interaction.client,
       closedBy: interaction.user.id,
       actionBy: interaction.user.tag,
-      notifyUserMessage: "Tu ticket fue cerrado por el personal de soporte.",
+      notifyUserMessage: "Tu ticket fue cerrado por el equipo de soporte. Puedes abrir un ticket nuevamente en el servidor si necesitas más ayuda.",
       closeReason: "Cerrado por staff",
     });
   } catch (error) {

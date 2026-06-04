@@ -35,11 +35,12 @@ export async function handleUserMessage(message, client) {
   if (thread) {
     const embed = new EmbedBuilder()
       .setAuthor({
-        name: message.author.tag,
+        name: `${message.author.tag} - ${message.author.id}`,
         iconURL: message.author.displayAvatarURL(),
       })
       .setDescription(message.content || "*Sin contenido*")
       .setColor(Colors.Blurple)
+      .setFooter({ text: "Response" })
       .setTimestamp();
 
     if (message.attachments.size > 0) {
@@ -135,6 +136,7 @@ export async function confirmModMessage(interaction, client) {
       })
       .setDescription(pendingMsg.content || "*Sin contenido*")
       .setColor(Colors.Blurple)
+      .setFooter({ text: "Response" })
       .setTimestamp();
 
     if (pendingMsg.attachments.size > 0) {

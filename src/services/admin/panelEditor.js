@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  Colors,
   EmbedBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
@@ -72,7 +73,6 @@ export async function handleEditPanelDesc(interaction) {
   await interaction.reply({
     content:
       "Envía la nueva descripción en este canal. Tienes **10 minutos** para responder, o puedes escribir `cancelar`.",
-    flags: ["Ephemeral"],
   });
 
   const filter = (m) => m.author.id === interaction.user.id;
@@ -86,7 +86,6 @@ export async function handleEditPanelDesc(interaction) {
     if (m.content.toLowerCase() === "cancelar") {
       await interaction.followUp({
         content: "Cancelado.",
-        flags: ["Ephemeral"],
       });
       return;
     }
@@ -183,9 +182,16 @@ export async function handleSendPanelButton(interaction) {
   const row = new ActionRowBuilder().addComponents(selectMenu);
 
   await channel.send({ embeds: [embed], components: [row] });
+  const successEmbed = new EmbedBuilder()
+    .setColor(Colors.Blurple)
+    .setAuthor({
+      name: interaction.user.tag,
+      iconURL: interaction.user.displayAvatarURL(),
+    })
+    .setDescription(`El panel ha sido enviado a <#${channelId}> correctamente`);
+
   await interaction.reply({
-    content: `El panel ha sido enviado a <#${channelId}> correctamente`,
-    flags: ["Ephemeral"],
+    embeds: [successEmbed],
   });
 }
 

@@ -25,19 +25,6 @@ export async function execute(interaction) {
     });
   }
 
-  if (ticket.status === "CLOSED") {
-    return interaction.reply({
-      content: "El ticket ya está cerrado.",
-      flags: ["Ephemeral"],
-    });
-  }
-
-  await interaction.reply({
-    content:
-      "El ticket está siendo cerrado y se está generando una transcripción.",
-    flags: ["Ephemeral"],
-  });
-
   await closeTicketThread({
     ticket,
     thread: interaction.channel,

@@ -1,4 +1,5 @@
 import {
+  Colors,
   EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -62,17 +63,31 @@ export async function execute(interaction) {
     const channel = interaction.options.getChannel("channel");
 
     await updateAlertChannel(guildId, channel.id);
+    const embed = new EmbedBuilder()
+      .setColor(Colors.Blurple)
+      .setAuthor({
+        name: interaction.user.tag,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setDescription(`El canal de alertas ha sido configurado a <#${channel.id}>`);
+
     await interaction.reply({
-      content: `El canal de alertas ha sido configurado a <#${channel.id}>`,
-      flags: ["Ephemeral"],
+      embeds: [embed],
     });
   } else if (subCmd === "transcripts") {
     const channel = interaction.options.getChannel("channel");
 
     await updateTranscriptChannel(guildId, channel.id);
+    const embed = new EmbedBuilder()
+      .setColor(Colors.Blurple)
+      .setAuthor({
+        name: interaction.user.tag,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setDescription(`El canal de transcripciones ha sido configurado a <#${channel.id}>`);
+
     await interaction.reply({
-      content: `El canal de transcripciones ha sido configurado a <#${channel.id}>`,
-      flags: ["Ephemeral"],
+      embeds: [embed],
     });
   } else if (subCmd === "panel") {
     const channel = interaction.options.getChannel("channel");
