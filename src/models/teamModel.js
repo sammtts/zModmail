@@ -1,12 +1,37 @@
-import {
-  deleteTeamsCache,
-  getSingleTeamCache,
-  getTeamsCache,
-  setSingleTeamCache,
-  setTeamsCache,
-} from "../cache/teamCache.js";
 import { db } from "../database/db.js";
 import { upsertGuildConfig } from "./guildModel.js";
+
+const teamsByGuildCache = new Map();
+const teamByIdCache = new Map();
+
+function getTeamsCache(guildId) {
+  return teamsByGuildCache.get(guildId);
+}
+
+function setTeamsCache(guildId, teams) {
+  teamsByGuildCache.set(guildId, teams);
+  for (const team of teams) {
+    teamByIdCache.set(team.id, team);
+  }
+}
+
+function getSingleTeamCache(teamId) {
+  return teamByIdCache.get(teamId);
+}
+
+function setSingleTeamCache(teamId, team) {
+  teamByIdCache.set(teamId, team);
+}
+
+function deleteTeamsCache(guildId) {
+  const teams = teamsByGuildCache.get(guildId);
+  if (teams) {
+    for (const team of teams) {
+      teamByIdCache.delete(team.id);
+    }
+  }
+  teamsByGuildCache.delete(guildId);
+}
 
 export async function getTeam(id) {
   const cached = getSingleTeamCache(id);

@@ -1,11 +1,51 @@
-import {
-  addActiveTicket,
-  getActiveTicketByThreadId,
-  getActiveTicketByUserId,
-  removeActiveTicket,
-  updateActiveTicket,
-} from "../cache/ticketCache.js";
 import { db } from "../database/db.js";
+import logger from "../utils/logger.js";
+
+const activeTicketsByUserId = new Map();
+const activeTicketsByThreadId = new Map();
+
+function addActiveTicket(ticket) {
+  if (ticket.userId) {
+    activeTicketsByUserId.set(ticket.userId, ticket);
+  }
+  if (ticket.threadId) {
+    activeTicketsByThreadId.set(ticket.threadId, ticket);
+  }
+}
+
+function removeActiveTicket(userId, threadId) {
+  if (userId) {
+    activeTicketsByUserId.delete(userId);
+  }
+  if (threadId) {
+    activeTicketsByThreadId.delete(threadId);
+  }
+}
+
+function getActiveTicketByUserId(userId) {
+  return activeTicketsByUserId.get(userId);
+}
+
+function getActiveTicketByThreadId(threadId) {
+  return activeTicketsByThreadId.get(threadId);
+}
+
+function updateActiveTicket(ticket) {
+  addActiveTicket(ticket);
+}
+
+export async function initializeTicketCache(dbInstance) {
+  try {
+    const openTickets = await dbInstance.ticket.findMany({
+      where: { status: "OPEN" },
+    });
+    for (const ticket of openTickets) {
+      addActiveTicket(ticket);
+    }
+  } catch (error) {
+    logger.error("Ocurrió un error al inicializar el caché de tickets:", error);
+  }
+}
 
 export async function getTicketById(id) {
   return db.ticket.findUnique({ where: { id } });

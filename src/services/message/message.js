@@ -6,16 +6,65 @@ import {
   EmbedBuilder,
 } from "discord.js";
 
-import { pendingModMessages } from "../../cache/pendingModMessages.js";
-import { TIMEOUT_PENDING_MSG } from "../../constants.js";
 import {
   getOpenTicketByUserId,
   getTicketById,
 } from "../../models/ticketModel.js";
-import { cleanupMessage } from "../../utils/errorHandler.js";
 import logger from "../../utils/logger.js";
 import { getThread } from "../../utils/threadManager.js";
 import { clearInactivityTimer, clearNoReplyTimer } from "../ticket/thread.js";
+
+// --- Constantes ---
+const TIMEOUT_PENDING_MSG = 15 * 60 * 1000; // 15 minutos
+const MAX_PENDING_MESSAGES = 1000;
+
+// --- Caché de Mensajes Pendientes ---
+class PendingMessagesCache {
+  constructor(maxSize = MAX_PENDING_MESSAGES) {
+    this.cache = new Map();
+    this.maxSize = maxSize;
+  }
+
+  set(key, value) {
+    if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+      logger.warn(
+        "Caché de mensajes pendientes lleno. Se eliminó la entrada más antigua.",
+      );
+    }
+    this.cache.set(key, value);
+  }
+
+  get(key) {
+    return this.cache.get(key);
+  }
+
+  has(key) {
+    return this.cache.has(key);
+  }
+
+  delete(key) {
+    return this.cache.delete(key);
+  }
+
+  get size() {
+    return this.cache.size;
+  }
+}
+
+const pendingModMessages = new PendingMessagesCache();
+
+// --- Utilidades Locales ---
+async function cleanupMessage(message) {
+  try {
+    await message.edit({ components: [] });
+  } catch (error) {
+    logger.warn(
+      `No se pudo limpiar el mensaje ${message.id}: ${error.message}`,
+    );
+  }
+}
 
 export async function handleUserMessage(message, client) {
   const ticket = await getOpenTicketByUserId(message.author.id);

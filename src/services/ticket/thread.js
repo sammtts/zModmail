@@ -57,7 +57,7 @@ export async function startInactivityTimer(
       thread,
       client,
       closedBy: moderatorId ?? "sistema",
-      actionBy: moderatorId ? `Moderador ${moderatorId}` : "Sistema",
+      actionBy: moderatorId ?? "Sistema",
       notifyUserMessage:
         "Tu ticket fue cerrado automáticamente por inactividad. Si necesitas ayuda, abre uno nuevo.",
       closeReason: "Inactividad",
@@ -116,10 +116,14 @@ export async function hasUserSentMessage(thread, userId) {
     const messages = await thread.messages.fetch({ limit: 10 });
     return messages.some((message) => {
       if (message.author.id === thread.client.user.id) {
-        return message.embeds.some(
-          (embed) =>
-            embed.author && embed.author.name === userTag && !embed.title,
-        );
+        return message.embeds.some((embed) => {
+          if (!embed.author || embed.title) return false;
+          return (
+            embed.author.name === userTag ||
+            embed.author.name === `${userTag} - ${userId}` ||
+            embed.author.name.endsWith(`- ${userId}`)
+          );
+        });
       }
       return false;
     });

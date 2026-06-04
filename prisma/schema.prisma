@@ -64,10 +64,3 @@ model Ticket {
   @@index([userId])
   @@index([status])
 }
-
-model Blacklist {
-  userId    String   @id
-  reason    String?
-  addedBy   String
-  createdAt DateTime @default(now())
-}

@@ -1,12 +1,13 @@
-import { getConfigCache, setConfigCache } from "../cache/configCache.js";
 import { db } from "../database/db.js";
 
+const configCache = new Map();
+
 export async function getGuildConfig(guildId) {
-  let config = getConfigCache(guildId);
+  let config = configCache.get(guildId);
   if (!config) {
     config = await db.guildConfig.findUnique({ where: { id: guildId } });
     if (config) {
-      setConfigCache(guildId, config);
+      configCache.set(guildId, config);
     }
   }
   return config;
@@ -17,7 +18,7 @@ export async function upsertGuildConfig(guildId) {
 
   if (!config) {
     config = await db.guildConfig.create({ data: { id: guildId } });
-    setConfigCache(guildId, config);
+    configCache.set(guildId, config);
   }
   return config;
 }
@@ -27,7 +28,7 @@ export async function updateAlertChannel(guildId, channelId) {
     where: { id: guildId },
     data: { alertChannel: channelId },
   });
-  setConfigCache(guildId, updated);
+  configCache.set(guildId, updated);
   return updated;
 }
 
@@ -36,7 +37,7 @@ export async function updateTranscriptChannel(guildId, channelId) {
     where: { id: guildId },
     data: { transcriptChannel: channelId },
   });
-  setConfigCache(guildId, updated);
+  configCache.set(guildId, updated);
   return updated;
 }
 
@@ -45,6 +46,6 @@ export async function updatePanelConfig(guildId, data) {
     where: { id: guildId },
     data,
   });
-  setConfigCache(guildId, updated);
+  configCache.set(guildId, updated);
   return updated;
 }

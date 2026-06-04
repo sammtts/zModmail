@@ -12,7 +12,6 @@ import {
 import discordTranscripts from "discord-html-transcripts";
 
 import { db } from "../../database/db.js";
-import { getBlacklistUser } from "../../models/blacklistModel.js";
 import { getGuildConfig } from "../../models/guildModel.js";
 import { getTeam, getTeamsByGuild } from "../../models/teamModel.js";
 import {
@@ -20,13 +19,35 @@ import {
   closeTicket as dbCloseTicket,
   createTicket as dbCreateTicket,
   getOpenTicketByUserId,
+  getTicketById,
   getTicketByThreadId,
   moveTicket as dbMoveTicket,
   updateTicketThread,
 } from "../../models/ticketModel.js";
 import logger from "../../utils/logger.js";
 import { getThread } from "../../utils/threadManager.js";
-import { validateOpenTicket } from "../../utils/ticketValidation.js";
+
+async function validateOpenTicket(interaction, ticketId) {
+  const ticket = await getTicketById(ticketId);
+
+  if (!ticket) {
+    await interaction.reply({
+      content: "El ticket ya no existe.",
+      flags: ["Ephemeral"],
+    });
+    return null;
+  }
+
+  if (ticket.status === "CLOSED") {
+    await interaction.reply({
+      content: "El ticket ya está cerrado.",
+      flags: ["Ephemeral"],
+    });
+    return null;
+  }
+
+  return ticket;
+}
 import {
   clearInactivityTimer,
   clearNoReplyTimer,
@@ -67,15 +88,6 @@ export async function createTicket(interaction, client) {
   const teamId = interaction.values[0];
   const user = interaction.user;
   const guildId = interaction.guildId;
-
-  const isBlacklisted = await getBlacklistUser(user.id);
-
-  if (isBlacklisted) {
-    return interaction.editReply({
-      content: "Estás en la lista negra por lo que no puedes crear tickets.",
-      flags: ["Ephemeral"],
-    });
-  }
 
   const existingTicket = await getOpenTicketByUserId(user.id);
   if (existingTicket) {
@@ -446,6 +458,7 @@ export async function closeTicketThread({
   const closedAtTimestamp = Math.floor(
     (closedTicket.closedAt ?? new Date()).getTime() / 1000,
   );
+  const closedByText = /^\d+$/.test(actionBy) ? `<@${actionBy}>` : actionBy;
 
   const closeEmbed = new EmbedBuilder()
     .setAuthor({
@@ -453,7 +466,7 @@ export async function closeTicketThread({
       iconURL: thread.guild.iconURL({ extension: "png", size: 512 }),
     })
     .setDescription(
-      `> **Usuario:** <@${ticket.userId}>\n> **Atendido por:** ${attendedBy}\n> **Cerrado por:** ${actionBy}\n> **Fecha:** <t:${closedAtTimestamp}:F>`,
+      `> **Usuario:** <@${ticket.userId}>\n> **Atendido por:** ${attendedBy}\n> **Cerrado por:** ${closedByText}\n> **Fecha:** <t:${closedAtTimestamp}:F>`,
     )
     .setColor(Colors.Blurple)
     .setTimestamp(closedTicket.closedAt ?? new Date());
@@ -537,7 +550,7 @@ export async function handleCloseTicketButton(interaction) {
       thread: interaction.channel,
       client: interaction.client,
       closedBy: interaction.user.id,
-      actionBy: interaction.user.tag,
+      actionBy: interaction.user.id,
       notifyUserMessage: "Tu ticket fue cerrado por el equipo de soporte. Puedes abrir un ticket nuevamente en el servidor si necesitas más ayuda.",
       closeReason: "Cerrado por staff",
     });

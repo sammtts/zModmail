@@ -1,4 +1,4 @@
-import { initializeTicketCache } from "../../cache/ticketCache.js";
+import { initializeTicketCache } from "../../models/ticketModel.js";
 import { db } from "../../database/db.js";
 import logger from "../../utils/logger.js";
 
