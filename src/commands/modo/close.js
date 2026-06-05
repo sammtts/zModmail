@@ -31,7 +31,7 @@ export async function execute(interaction) {
     client: interaction.client,
     closedBy: interaction.user.id,
     actionBy: interaction.user.id,
-    notifyUserMessage: `Tu ticket fue cerrado por el equipo de soporte. Puedes abrir un ticket nuevamente en el servidor si necesitas más ayuda.`,
+    notifyUserMessage: `Tu ticket fue cerrado por un miembro del equipo. Puedes abrir un ticket nuevamente en el servidor si necesitas más ayuda.`,
     closeReason: "Cerrado por staff",
   });
 }

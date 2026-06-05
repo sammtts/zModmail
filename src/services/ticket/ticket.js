@@ -228,6 +228,11 @@ export async function createTicket(interaction, client) {
       embeds: [userInfoEmbed],
       components: [staffButtons],
     });
+    try {
+      await infoMessage.pin();
+    } catch (e) {
+      logger.error(`No se pudo fijar el mensaje de información: ${e.message}`);
+    }
   } catch (error) {
     logger.error(
       `Ocurrió un error al crear el hilo del ticket o notificar al equipo: ${error.message}`,
@@ -367,9 +372,18 @@ export async function moveTicket(interaction, _client) {
 
   await dbMoveTicket(ticket.id, team.id);
 
-  await interaction.update({
-    components: [],
-  });
+  try {
+    await interaction.channel.setName(`[-] ${ticket.userId} - ${team.name}`);
+  } catch (error) {
+    logger.error(`Ocurrió un error al renombrar el hilo al mover: ${error.message}`);
+  }
+
+  try {
+    await interaction.deferUpdate();
+    await interaction.message.delete();
+  } catch (error) {
+    logger.error(`Ocurrió un error al eliminar el embed de mover ticket: ${error.message}`);
+  }
 
   if (oldTeam && oldTeam.roleId) {
     try {

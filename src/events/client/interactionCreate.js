@@ -5,7 +5,7 @@ import {
   handlePanelTeamsSelect,
   handleSendPanelButton,
 } from "../../services/admin/panelEditor.js";
-import { confirmModMessage } from "../../services/message/message.js";
+import { confirmModMessage, cancelModMessage } from "../../services/message/message.js";
 import {
   claimTicket,
   createTicket,
@@ -104,7 +104,7 @@ async function handleButton(interaction, client) {
   }
 
   if (customId.startsWith("cancel_mod_msg")) {
-    return interaction.message.delete().catch(() => {});
+    return cancelModMessage(interaction);
   }
 }
 

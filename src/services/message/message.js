@@ -231,3 +231,32 @@ export async function confirmModMessage(interaction, client) {
     });
   }
 }
+
+export async function cancelModMessage(interaction) {
+  const originalMsgId = interaction.customId.replace("cancel_mod_msg_", "");
+  const pendingMsg = pendingModMessages.get(originalMsgId);
+
+  if (!pendingMsg) {
+    return interaction.reply({
+      content: "No se encontró este mensaje.",
+      flags: ["Ephemeral"],
+    });
+  }
+
+  if (pendingMsg.modId !== interaction.user.id) {
+    return interaction.reply({
+      content: "No puedes cancelar el mensaje de otro moderador.",
+      flags: ["Ephemeral"],
+    });
+  }
+
+  pendingModMessages.delete(originalMsgId);
+
+  try {
+    await interaction.message.delete();
+  } catch (error) {
+    logger.error(
+      `Ocurrió un error al eliminar el mensaje de prompt: ${error.message}`,
+    );
+  }
+}
